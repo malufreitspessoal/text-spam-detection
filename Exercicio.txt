@@ -1,0 +1,15 @@
+Desenvolva um modelo de Machine Learning em Python que classifique mensagens como "spam" ou "não spam". Utilize o conjunto de dados público "SMS Spam Collection Dataset" disponível no Kaggle (https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset). A implementação deve incluir: 
+
+Pré-processamento de texto (tokenização, remoção de stopwords, etc.) 
+
+Divisão em conjuntos de treino e teste 
+
+Treinamento do modelo (sugestão: usar Naive Bayes ou qualquer outro apropriado) 
+
+Avaliação do modelo com métricas como precisão, recall e F1-score 
+
+Uma função para classificar novas mensagens 
+
+Para a resposta, deve ser enviado um arquivo .py ou notebook Jupyter (.ipynb) com o código comentado. 
+
+ 

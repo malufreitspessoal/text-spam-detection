@@ -1,0 +1,80 @@
+    text = re.sub(r'[^a-zA-Z\s]', '', text)
+
+
+re.sub: Substitui todas as ocorrências de um padrão (definido pela expressão regular) por outro valor (neste caso, uma string vazia '').
+Padrão r'[^a-zA-Z\s]':
+^ dentro de []: Significa "não corresponder" (negação).
+a-z: Letras minúsculas de 'a' a 'z'.
+A-Z: Letras maiúsculas de 'A' a 'Z'.
+\s: Espaços em branco (espaço, tabulação, etc.).
+Juntos, [^a-zA-Z\s] significa: "qualquer caractere que não seja uma letra (maiúscula ou minúscula) ou espaço em branco".
+'': Substitui os caracteres correspondentes ao padrão por uma string vazia, ou seja, remove-os.
+text: A string de entrada onde a substituição é aplicada.
+
+vetorização
+
+Linha por Linha
+1. vectorizer = TfidfVectorizer(max_features=3000)
+Essa linha cria um objeto TF-IDF Vectorizer, que é uma ferramenta do scikit-learn para transformar texto em números.
+
+Parâmetro max_features=3000:
+Limita o vocabulário a 3000 palavras mais frequentes (ou mais relevantes, com base em TF-IDF).
+Por que limitar? O dataset pode ter dezenas de milhares de palavras únicas, mas muitas são raras ou pouco úteis (ex.: erros de digitação). Limitar a 3000 reduz a memória usada e acelera o treinamento sem perder muita informação.
+Otimização: Menos features (colunas) tornam o modelo mais rápido e evitam overfitting.
+O que está sendo feito?
+O TfidfVectorizer é configurado para:
+Criar um vocabulário com até 3000 palavras.
+Calcular pesos TF-IDF para cada palavra nas mensagens.
+Ignorar palavras fora desse limite.
+2. X = vectorizer.fit_transform(df['processed_text']).toarray()
+Essa linha faz duas coisas:ソー: ajusta o vetorizador aos dados e transforma o texto em uma matriz numérica.
+
+O que é fit_transform?
+fit: Analisa o texto em df['processed_text'] (a coluna com mensagens pré-processadas) e constrói o vocabulário (lista de até 3000 palavras mais relevantes).
+Exemplo: Se as palavras "win", "free", "lunch" estão entre as mais frequentes, elas entram no vocabulário.
+transform: Converte cada mensagem em um vetor de números, onde cada número é o peso TF-IDF de uma palavra do vocabulário.
+fit_transform: Faz as duas coisas (fit + transform) de uma vez.
+O que é df['processed_text']?
+É a coluna do DataFrame com o texto limpo (após remoção de stopwords, stemming, etc.).
+Exemplo de entrada: ["win free ticket", "lunch today", "claim prize now"].
+Resultado de fit_transform:
+Gera uma matriz esparsa (sparse matrix) onde:
+Cada linha representa uma mensagem.
+Cada coluna representa uma palavra do vocabulário (máximo de 3000 colunas).
+Cada valor é o peso TF-IDF dessa palavra na mensagem.
+Exemplo simplificado (com 3 palavras no vocabulário: "win", "free", "lunch"):
+Mensagem "win free ticket" → [0.5, 0.5, 0.0] (valores TF-IDF para "win", "free", "lunch").
+Mensagem "lunch today" → [0.0, 0.0, 0.7].
+Mensagem "claim prize now" → [0.0, 0.0, 0.0] (nenhuma palavra do vocabulário).
+.toarray():
+Converte a matriz esparsa em uma matriz densa (um array NumPy).
+Por quê? O MultinomialNB aceita tanto matrizes esparsas quanto densas, mas .toarray() é usado aqui para garantir compatibilidade e simplificar.
+Nota: Matrizes esparsas economizam memória (armazenam apenas valores não zero), mas .toarray() cria uma matriz cheia, o que pode usar mais memória em datasets muito grandes.
+O que é X?
+X é a matriz de features (variáveis independentes) que será usada para treinar o modelo.
+Dimensões: (n_mensagens, 3000), onde n_mensagens é o número de linhas em df (ex.: 5572 no dataset).
+Cada linha de X é um vetor de 3000 números representando uma mensagem.
+3. y = df['label']
+Essa linha define os rótulos (variável dependente) para o modelo.
+
+O que é df['label']?
+É a coluna do DataFrame que contém os rótulos das mensagens:
+0 para "ham" (não spam).
+1 para "spam".
+No código anterior, você criou essa coluna com:
+python
+
+Recolher
+
+Encapsular
+
+Copiar
+df['label'] = df['v1'].map({'ham': 0, 'spam': 1})
+O que é y?
+y é uma série pandas (ou array) com os rótulos correspondentes a cada mensagem em X.
+Exemplo: Se df['label'] é [0, 0, 1, 0, 1], então y será [0, 0, 1, 0, 1].
+Tamanho: n_mensagens (mesmo número de linhas de X).
+Para que serve?
+X contém as features (representação numérica das mensagens).
+y contém as classes verdadeiras (spam ou não spam).
+Juntos, X e y são usados para treinar o modelo (model.fit(X_train, y_train)).
